@@ -1,53 +1,101 @@
 <!DOCTYPE html>
-<html lang="id">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Template WD Online</title>
+<html lang="id"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Kata Kata Bijak</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-*{box-sizing:border-box}body{margin:0;min-height:100vh;padding:35px 20px;font-family:Arial,Helvetica,sans-serif;background:#111827;color:#fff}.container{max-width:900px;margin:auto}h1{margin:0 0 7px;font-size:28px}.desc{color:#9ca3af;margin-bottom:25px}.top{display:flex;gap:10px;justify-content:space-between;align-items:center;margin-bottom:18px;flex-wrap:wrap}.status{font-size:12px;color:#9ca3af}.admin-link{color:#93c5fd;text-decoration:none}.filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}.filter{border:1px solid #374151;background:#1f2937;color:#ddd;border-radius:999px;padding:8px 13px;cursor:pointer}.filter.active{border-color:#60a5fa;color:#fff;background:#26364d}.buttons{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}.copy-btn{border:1px solid #374151;border-radius:12px;background:#1f2937;color:white;padding:20px 18px;min-height:105px;cursor:pointer;text-align:left;transition:.15s ease}.copy-btn:hover{background:#273449;border-color:#60a5fa;transform:translateY(-2px)}.copy-btn:active{transform:scale(.98)}.copy-btn span{display:block;font-size:17px;font-weight:700}.copy-btn small{display:block;margin-top:9px;color:#9ca3af;font-size:10px;letter-spacing:1px}.copy-btn.copied{background:#153522;border-color:#22c55e}.empty{text-align:center;color:#9ca3af;padding:40px}.toast{position:fixed;left:50%;bottom:25px;transform:translate(-50%,20px);background:#22c55e;color:white;padding:11px 18px;border-radius:999px;font-weight:bold;opacity:0;pointer-events:none;transition:.2s}.toast.show{opacity:1;transform:translate(-50%,0)}
-</style>
-</head>
+:root{--bg:#0b111b;--panel:#161f2e;--panel2:#1c2739;--line:#27344a;--text:#eef2f8;--mute:#8b9ab0;--accent:#3b82f6;--ok:#4ade80;--err:#f87171}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;color:var(--text);font-family:'Plus Jakarta Sans',system-ui,-apple-system,Segoe UI,Arial,sans-serif;font-size:14px;line-height:1.5;background:radial-gradient(900px 420px at 15% -10%,#14305c55,transparent 70%),radial-gradient(700px 380px at 100% 0,#1d3a6b33,transparent 70%),var(--bg);background-attachment:fixed}
+button,input{font:inherit}
+button:focus-visible,input:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.wrap{max-width:1080px;margin:auto;padding:34px 20px 80px}
+header{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap}
+h1{margin:0;font-size:clamp(28px,5vw,42px);line-height:1.05;font-weight:800;letter-spacing:-.02em}
+.sub{margin:8px 0 0;color:var(--mute);font-size:15px}
+.admin{color:var(--text);text-decoration:none;border:1px solid var(--line);background:var(--panel);border-radius:10px;padding:9px 15px;font-weight:600;transition:background .15s}
+.admin:hover{background:var(--panel2)}
+.status{display:flex;align-items:center;gap:8px;margin-top:18px;font-size:12.5px;color:var(--mute)}
+.dot{width:8px;height:8px;border-radius:50%;background:#64748b;flex:none}
+.status.on .dot{background:var(--ok);box-shadow:0 0 0 0 #4ade8088;animation:pulse 2.4s infinite}
+.status.err .dot{background:var(--err)}
+@keyframes pulse{70%{box-shadow:0 0 0 7px #4ade8000}100%{box-shadow:0 0 0 0 #4ade8000}}
+.sticky{position:sticky;top:0;z-index:5;margin:14px -20px 0;padding:12px 20px;background:linear-gradient(var(--bg) 70%,#0b111b00)}
+.search{width:100%;background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:12px;padding:12px 14px;font-size:15px}
+.search::placeholder{color:#5d6b82}
+.filters{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}
+.filter{border:1px solid var(--line);background:transparent;color:var(--mute);border-radius:999px;padding:6px 14px;font-weight:600;font-size:13px;cursor:pointer;transition:.15s}
+.filter:hover{color:var(--text);border-color:#3a4a66}
+.filter.active{background:var(--accent);border-color:var(--accent);color:#fff}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:14px;margin-top:8px}
+.card{--c:var(--accent);position:relative;display:flex;flex-direction:column;gap:8px;text-align:left;color:var(--text);cursor:pointer;min-height:140px;padding:16px 16px 14px;background:var(--panel);border:1px solid var(--line);border-top:3px solid var(--c);border-radius:14px;transition:transform .15s,border-color .15s,background .15s,box-shadow .15s}
+.card:hover{background:var(--panel2);transform:translateY(-3px);box-shadow:0 12px 28px -14px #000}
+.card:active{transform:scale(.985)}
+.row{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.cat{font-size:11.5px;font-weight:700;padding:2px 9px;border-radius:999px;color:var(--c);background:color-mix(in srgb,var(--c) 15%,transparent)}
+.hint{font-size:12px;font-weight:600;color:var(--mute);transition:color .15s}
+.card:hover .hint{color:var(--text)}
+.name{font-size:17px;font-weight:800;overflow-wrap:anywhere}
+.preview{color:var(--mute);font-size:13px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere}
+.card.copied{background:#10301f;border-color:#1f7a45;border-top-color:var(--ok);animation:pop .3s}
+.card.copied .hint{color:var(--ok)}
+@keyframes pop{40%{transform:scale(1.02)}}
+.empty{grid-column:1/-1;text-align:center;color:var(--mute);padding:50px 20px;border:1px dashed var(--line);border-radius:14px}
+.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translate(-50%,18px);background:#0b1019;border:1px solid #1f7a45;color:var(--ok);padding:11px 20px;border-radius:999px;font-weight:700;opacity:0;pointer-events:none;transition:.2s;z-index:20;max-width:90vw;white-space:nowrap}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style></head>
 <body>
-<div class="container">
-  <div class="top"><div><h1>Template WD Online</h1><div class="desc">Klik tombol untuk langsung menyalin kalimatnya.</div></div><a class="admin-link" href="admin.html">⚙ Kelola Tombol</a></div>
-  <div class="status" id="status">Menghubungkan database...</div>
-  <div class="filters" id="filters"></div>
-  <div class="buttons" id="buttons"></div>
+<div class="wrap">
+  <header>
+    <div><h1>Kata Kata Bijak</h1><p class="sub">Klik kartu untuk langsung menyalin kalimatnya.</p></div>
+    <a class="admin" href="admin.html">Kelola tombol</a>
+  </header>
+  <div class="status" id="status"><span class="dot"></span><span id="statusText">Menghubungkan database...</span></div>
+  <div class="sticky">
+    <input class="search" id="search" type="search" placeholder="Cari template..." autocomplete="off">
+    <div class="filters" id="filters"></div>
+  </div>
+  <div class="grid" id="buttons"></div>
 </div>
-<div id="toast" class="toast">✓ Kalimat berhasil di-copy!</div>
+<div id="toast" class="toast" role="status">Tersalin</div>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-const SUPABASE_URL = 'ISI_SUPABASE_URL';
-const SUPABASE_KEY = 'ISI_SUPABASE_PUBLISHABLE_KEY';
-const configured = !SUPABASE_URL.startsWith('ISI_') && !SUPABASE_KEY.startsWith('ISI_');
-const db = configured ? supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
-let allButtons=[], activeCategory='Semua';
-const fallback=[
-['WD GANG','Mohon maaf atas keterlambatan proses withdrawal saat ini. Saat ini sistem pemrosesan WD sedang mengalami kendala teknis, sehingga beberapa transaksi membutuhkan waktu lebih lama dari biasanya ya bosku.','WD'],
-['MINTA AMPUN 1','Mohon maaf sebesar-besarnya atas ketidaknyamanan dan keterlambatan proses WD saat ini, bosku 🙏','WD'],
-['MINTA AMPUN 2','Sekali lagi kami mohon maaf atas keterlambatan ini, bosku 🙏 Kami akan terus memantau perkembangan sistem dan memberikan informasi apabila sudah ada update terbaru. Terima kasih banyak atas pengertian dan kesabarannya, bosku.','WD'],
-['TIDAK BISA BATAL','Mohon maaf ya bosku 🙏 Untuk saat ini proses WD yang sudah diajukan belum dapat dibatalkan terlebih dahulu, karena transaksi masih dalam proses sistem.','WD'],
-['SECEPATNYA','Kami pasti akan usahakan prosesnya secepatnya ya bosku 🙏 Saat ini tim terkait masih melakukan pengecekan dan perbaikan pada sistem WD.','WD'],
-['ESTIMASI','Untuk saat ini kami juga belum mendapatkan informasi pasti mengenai estimasi waktu sistem akan kembali normal. Tim terkait masih melakukan pengecekan dan perbaikan agar proses dapat segera kembali berjalan seperti biasa ya bosku.','WD']].map((x,i)=>({id:i,title:x[0],message:x[1],category:x[2],sort_order:i+1}));
+const SUPABASE_URL='https://kucvfhdnzaogwdmqdqge.supabase.co';
+const SUPABASE_KEY='sb_publishable_xYwB-L15uxO_b75fTNyJNw_VO17PoRs';
+const db=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+const $=id=>document.getElementById(id);
+let allButtons=[],activeCategory='Semua',subscribed=false;
+function esc(s){return String(s??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
+function hue(s){let h=0;for(const ch of String(s||'Umum'))h=(h*31+ch.charCodeAt(0))%360;return `hsl(${h} 70% 62%)`}
+function setStatus(t,cls){$('status').className='status '+(cls||'');$('statusText').textContent=t}
+
 async function load(){
- if(!db){allButtons=fallback;document.getElementById('status').textContent='Mode demo — isi konfigurasi Supabase untuk memakai database online.';render();return}
- const {data,error}=await db.from('buttons').select('*').order('sort_order').order('title');
- if(error){allButtons=fallback;document.getElementById('status').textContent='Database belum siap: '+error.message;render();return}
- allButtons=data||[];document.getElementById('status').textContent='✓ Tersambung ke database online';render();
- db.channel('buttons-live').on('postgres_changes',{event:'*',schema:'public',table:'buttons'},()=>load()).subscribe();
+  const {data,error}=await db.from('buttons').select('*').order('sort_order').order('title');
+  if(error){setStatus('Database belum siap: '+error.message,'err');render();return}
+  allButtons=data||[];setStatus('Tersambung ke database online','on');render();
+  if(!subscribed){subscribed=true;db.channel('buttons-live').on('postgres_changes',{event:'*',schema:'public',table:'buttons'},()=>load()).subscribe()}
 }
 function render(){
- const cats=['Semua',...new Set(allButtons.map(x=>x.category||'Umum'))];
- document.getElementById('filters').innerHTML=cats.map(c=>`<button class="filter ${c===activeCategory?'active':''}" onclick="setCategory(${JSON.stringify(c)})">${escapeHtml(c)}</button>`).join('');
- const list=activeCategory==='Semua'?allButtons:allButtons.filter(x=>(x.category||'Umum')===activeCategory);
- document.getElementById('buttons').innerHTML=list.length?list.map(b=>`<button class="copy-btn" data-text="${escapeAttr(b.message)}" onclick="copyText(this)"><span>${escapeHtml(b.title)}</span><small>${escapeHtml(b.category||'Umum')} • CLICK TO COPY</small></button>`).join(''):'<div class="empty">Belum ada tombol.</div>';
+  const cats=['Semua',...new Set(allButtons.map(x=>x.category||'Umum'))];
+  if(!cats.includes(activeCategory))activeCategory='Semua';
+  $('filters').innerHTML=cats.map(c=>`<button class="filter ${c===activeCategory?'active':''}" data-cat="${esc(c)}">${esc(c)}</button>`).join('');
+  const q=$('search').value.trim().toLowerCase();
+  const list=allButtons.filter(b=>(activeCategory==='Semua'||(b.category||'Umum')===activeCategory)&&(!q||(b.title+' '+b.message).toLowerCase().includes(q)));
+  $('buttons').innerHTML=list.length?list.map(b=>`<button class="card" style="--c:${hue(b.category)}" data-id="${b.id}"><div class="row"><span class="cat">${esc(b.category||'Umum')}</span><span class="hint">Klik untuk salin</span></div><span class="name">${esc(b.title)}</span><span class="preview">${esc(b.message)}</span></button>`).join(''):`<div class="empty">${allButtons.length?'Tidak ada template yang cocok.':'Belum ada tombol. Tambahkan lewat halaman Kelola tombol.'}</div>`;
 }
-function setCategory(c){activeCategory=c;render()}
-function escapeHtml(s){return String(s).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
-function escapeAttr(s){return escapeHtml(s)}
-async function copyText(button){const text=button.dataset.text;try{await navigator.clipboard.writeText(text)}catch(e){const area=document.createElement('textarea');area.value=text;document.body.appendChild(area);area.select();document.execCommand('copy');area.remove()}document.querySelectorAll('.copy-btn').forEach(b=>b.classList.remove('copied'));button.classList.add('copied');const toast=document.getElementById('toast');toast.classList.add('show');setTimeout(()=>{toast.classList.remove('show');button.classList.remove('copied')},900)}
+$('filters').addEventListener('click',e=>{const f=e.target.closest('[data-cat]');if(f){activeCategory=f.dataset.cat;render()}});
+$('search').addEventListener('input',render);
+$('buttons').addEventListener('click',e=>{const c=e.target.closest('.card');if(c)copyText(c)});
+
+let tm;
+async function copyText(card){
+  const b=allButtons.find(x=>String(x.id)===card.dataset.id);if(!b)return;
+  try{await navigator.clipboard.writeText(b.message)}catch(e){const a=document.createElement('textarea');a.value=b.message;document.body.appendChild(a);a.select();document.execCommand('copy');a.remove()}
+  document.querySelectorAll('.card.copied').forEach(x=>{x.classList.remove('copied');x.querySelector('.hint').textContent='Klik untuk salin'});
+  card.classList.add('copied');card.querySelector('.hint').textContent='Tersalin';
+  const t=$('toast');t.textContent='Tersalin: '+b.title;t.classList.add('show');
+  clearTimeout(tm);tm=setTimeout(()=>{t.classList.remove('show');card.classList.remove('copied');card.querySelector('.hint').textContent='Klik untuk salin'},1400);
+}
 load();
-</script>
-</body>
-</html>
+</script></body></html>
