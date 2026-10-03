@@ -98,7 +98,7 @@ label{display:block;margin:0 0 6px;font-size:13px;font-weight:600;color:#c3cddc}
       <div class="editing-note" id="editNote">Sedang mengedit tombol. Klik Batal untuk kembali menambah tombol baru.</div>
       <div style="height:14px"></div>
       <div class="field"><label for="title">Nama tombol</label><input id="title" placeholder="Contoh: WD LAMA" maxlength="60"></div>
-      <div class="field"><label for="category">Kategori</label><input id="category" value="WD" placeholder="WD / Deposit / Bonus" list="catlist" maxlength="30"><datalist id="catlist"></datalist></div>
+      <div class="field"><label for="category">Kategori</label><input id="category" placeholder="Ketik kategori, contoh: Motivasi" maxlength="30" autocomplete="off"></div>
       <div class="field"><label for="message">Isi kalimat</label><textarea id="message" placeholder="Kalimat yang akan di-copy..."></textarea><div class="hint"><span>Teks ini yang tersalin saat tombol diklik.</span><span id="charCount">0 karakter</span></div></div>
       <div class="actions"><button class="primary" onclick="saveButton()" id="saveBtn">Simpan tombol</button><button onclick="resetForm()" id="cancelBtn">Bersihkan</button></div>
     </section>
@@ -146,8 +146,7 @@ async function loadList(){
 function render(){
   const cats=[...new Set(all.map(b=>b.category||'Umum'))];
   if(filterCat!=='Semua'&&!cats.includes(filterCat))filterCat='Semua';
-  $('catlist').innerHTML=cats.map(c=>`<option value="${esc(c)}">`).join('');
-  $('chips').innerHTML=['Semua',...cats].map(c=>`<button class="chip ${c===filterCat?'on':''}" data-cat="${esc(c)}">${esc(c)}</button>`).join('');
+    $('chips').innerHTML=['Semua',...cats].map(c=>`<button class="chip ${c===filterCat?'on':''}" data-cat="${esc(c)}">${esc(c)}</button>`).join('');
   const q=$('search').value.trim().toLowerCase();
   const rows=all.filter(b=>(filterCat==='Semua'||(b.category||'Umum')===filterCat)&&(!q||(b.title+' '+b.message).toLowerCase().includes(q)));
   $('count').textContent=rows.length===all.length?`${all.length} tombol`:`${rows.length} dari ${all.length} tombol`;
@@ -170,7 +169,7 @@ function editButton(id){
   $('title').focus({preventScroll:true});
 }
 function resetForm(){
-  editingId=null;$('title').value='';$('category').value='WD';$('message').value='';$('charCount').textContent='0 karakter';
+  editingId=null;$('title').value='';$('category').value='';$('message').value='';$('charCount').textContent='0 karakter';
   $('formTitle').textContent='Tambah tombol';$('saveBtn').textContent='Simpan tombol';$('cancelBtn').textContent='Bersihkan';
   $('editor').classList.remove('editing');render();
 }
