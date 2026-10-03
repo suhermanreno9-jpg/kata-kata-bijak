@@ -1,21 +1,195 @@
 <!DOCTYPE html>
-<html lang="id"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Admin - Template WD</title>
-<style>*{box-sizing:border-box}body{margin:0;min-height:100vh;padding:30px 20px;background:#111827;color:#fff;font-family:Arial,Helvetica,sans-serif}.wrap{max-width:900px;margin:auto}h1{margin:0 0 8px}.muted{color:#9ca3af}.panel{background:#1f2937;border:1px solid #374151;border-radius:14px;padding:20px;margin-top:18px}.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}@media(max-width:700px){.row{grid-template-columns:1fr}}label{display:block;margin:0 0 7px;font-size:13px;color:#d1d5db}input,textarea,select{width:100%;background:#111827;color:#fff;border:1px solid #374151;border-radius:9px;padding:11px;font:inherit}textarea{min-height:130px;resize:vertical}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}button,a{border:0;border-radius:9px;padding:10px 14px;cursor:pointer;font-weight:700;text-decoration:none}button.primary{background:#2563eb;color:#fff}button.secondary{background:#374151;color:#fff}button.danger{background:#7f1d1d;color:#fff}.hidden{display:none}.item{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;padding:13px 0;border-bottom:1px solid #374151}.item:last-child{border-bottom:0}.title{font-weight:700}.message{font-size:13px;color:#9ca3af;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.pill{font-size:11px;color:#93c5fd}.login{max-width:430px;margin:60px auto}.error{color:#fca5a5;margin-top:10px}.ok{color:#86efac;margin-top:10px}</style></head>
-<body><div class="wrap">
-<div id="login" class="login panel"><h1>Login Admin</h1><p class="muted">Gunakan akun Supabase yang sudah didaftarkan sebagai admin.</p><input id="email" type="email" placeholder="Email"><br><br><input id="password" type="password" placeholder="Password"><div class="actions"><button class="primary" onclick="login()">Login</button></div><div id="loginMsg"></div></div>
-<div id="app" class="hidden"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><div><h1>Kelola Template WD</h1><div class="muted">Perubahan langsung tersimpan ke database online.</div></div><div class="actions"><a href="index.html" class="secondary">← Halaman Utama</a><button class="secondary" onclick="logout()">Logout</button></div></div>
-<div class="panel"><h2 id="formTitle">Tambah Tombol</h2><div class="row"><div><label>Nama / Judul Tombol</label><input id="title" placeholder="Contoh: WD LAMA"></div><div><label>Kategori</label><input id="category" value="WD" placeholder="WD / Deposit / Bonus"></div></div><br><label>Isi Kalimat</label><textarea id="message" placeholder="Kalimat yang akan di-copy..."></textarea><div class="actions"><button class="primary" onclick="saveButton()" id="saveBtn">+ Simpan Tombol</button><button class="secondary" onclick="resetForm()">Bersihkan</button></div><div id="formMsg"></div></div>
-<div class="panel"><h2>Daftar Tombol</h2><div id="list">Memuat...</div></div></div></div>
+<html lang="id"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Admin - Kata Kata Bijak</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0e1420;--bar:#131b2a;--panel:#18212f;--panel2:#1e2939;--line:#2a3649;--text:#eef2f8;--mute:#8b9ab0;--accent:#3b82f6;--accent2:#2563eb;--ok:#4ade80;--err:#f87171;--r:12px}
+*{box-sizing:border-box}
+html{scroll-padding-top:80px}
+body{margin:0;min-height:100vh;background:var(--bg);color:var(--text);font-family:'Plus Jakarta Sans',system-ui,-apple-system,Segoe UI,Arial,sans-serif;font-size:14px;line-height:1.5}
+.hidden{display:none!important}
+button,input,textarea{font:inherit}
+button{cursor:pointer;border:0;border-radius:9px;padding:9px 14px;font-weight:600;color:var(--text);background:var(--panel2);border:1px solid var(--line);transition:background .15s,border-color .15s}
+button:hover{background:#26344a}
+button:focus-visible,input:focus-visible,textarea:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+button.primary{background:var(--accent2);border-color:var(--accent2)}button.primary:hover{background:var(--accent)}
+button.danger{color:#fca5a5;background:transparent;border-color:#5b2a2f}button.danger:hover{background:#3a1d21}
+button.small{padding:6px 11px;font-size:13px}
+input,textarea{width:100%;background:var(--bg);color:var(--text);border:1px solid var(--line);border-radius:9px;padding:10px 12px}
+input::placeholder,textarea::placeholder{color:#5d6b82}
+textarea{min-height:150px;resize:vertical;line-height:1.55}
+label{display:block;margin:0 0 6px;font-size:13px;font-weight:600;color:#c3cddc}
+.field{margin-bottom:14px}
+.hint{font-size:12px;color:var(--mute);margin-top:5px;display:flex;justify-content:space-between;gap:8px}
+
+/* login */
+.login{max-width:400px;margin:12vh auto 0;padding:0 18px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:24px}
+.login h1{margin:0 0 4px;font-size:22px}
+.login p{margin:0 0 20px;color:var(--mute)}
+.msg-err{color:var(--err);margin-top:12px;font-size:13px}
+
+/* top bar */
+.bar{position:sticky;top:0;z-index:10;background:var(--bar);border-bottom:1px solid var(--line)}
+.bar-in{max-width:1180px;margin:auto;padding:12px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.brand h1{margin:0;font-size:17px;font-weight:800}
+.brand span{font-size:12px;color:var(--mute)}
+.bar .btns{display:flex;gap:8px}
+.bar a{display:inline-block;text-decoration:none;color:var(--text);border:1px solid var(--line);background:var(--panel2);border-radius:9px;padding:9px 14px;font-weight:600}
+.bar a:hover{background:#26344a}
+
+/* layout */
+.main{max-width:1180px;margin:auto;padding:22px 20px 60px;display:grid;grid-template-columns:380px minmax(0,1fr);gap:20px;align-items:start}
+@media(max-width:900px){.main{grid-template-columns:minmax(0,1fr)}.editor{position:static!important}}
+.editor{position:sticky;top:78px}
+.editor h2,.listbox h2{margin:0;font-size:16px;font-weight:700}
+.editor.editing{border-color:var(--accent)}
+.editing-note{display:none;margin:10px 0 0;padding:8px 11px;border-radius:9px;background:#14284a;color:#9ec5ff;font-size:13px}
+.editor.editing .editing-note{display:block}
+.head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:16px}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+.actions .primary{flex:1}
+
+/* list */
+.tools{display:flex;gap:10px;margin:14px 0 4px;flex-wrap:wrap}
+.tools input{flex:1;min-width:180px}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0 6px}
+.chip{padding:5px 12px;font-size:12.5px;border-radius:999px;background:transparent;color:var(--mute)}
+.chip.on{background:var(--accent2);border-color:var(--accent2);color:#fff}
+.count{font-size:12.5px;color:var(--mute);font-weight:500}
+.item{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:14px;align-items:center;padding:14px 14px 14px 16px;margin-top:10px;background:var(--panel2);border:1px solid var(--line);border-left:4px solid var(--c,var(--accent));border-radius:10px}
+.item.now{border-color:var(--accent);border-left-color:var(--c,var(--accent))}
+.itop{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.title{font-weight:700;font-size:14.5px;overflow-wrap:anywhere}
+.pill{font-size:11.5px;font-weight:600;padding:2px 9px;border-radius:999px;color:var(--c,var(--accent));background:color-mix(in srgb,var(--c,var(--accent)) 14%,transparent)}
+.message{margin-top:5px;color:var(--mute);font-size:13px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere}
+.item .acts{display:flex;gap:6px}
+@media(max-width:560px){.item{grid-template-columns:minmax(0,1fr)}.item .acts{justify-content:flex-end}}
+.empty{margin-top:14px;padding:26px;text-align:center;color:var(--mute);border:1px dashed var(--line);border-radius:10px}
+
+/* toast */
+#toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(20px);opacity:0;pointer-events:none;background:#0b1019;border:1px solid var(--line);padding:10px 16px;border-radius:10px;font-weight:600;transition:.2s;z-index:50}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+#toast.ok{border-color:#1f6b3c;color:var(--ok)}#toast.err{border-color:#7a2b31;color:var(--err)}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style></head>
+<body>
+
+<div id="login" class="login">
+  <div class="card">
+    <h1>Login Admin</h1>
+    <p>Masuk dengan akun yang sudah terdaftar sebagai admin.</p>
+    <div class="field"><label for="email">Email</label><input id="email" type="email" placeholder="nama@email.com" autocomplete="username"></div>
+    <div class="field"><label for="password">Password</label><input id="password" type="password" placeholder="Password" autocomplete="current-password"></div>
+    <button class="primary" style="width:100%" onclick="login()" id="loginBtn">Login</button>
+    <div id="loginMsg"></div>
+  </div>
+</div>
+
+<div id="app" class="hidden">
+  <header class="bar"><div class="bar-in">
+    <div class="brand"><h1>Kelola Kata Kata Bijak</h1><span>Perubahan langsung tersimpan ke database online</span></div>
+    <div class="btns"><a href="index.html">Halaman utama</a><button onclick="logout()">Logout</button></div>
+  </div></header>
+
+  <div class="main">
+    <section class="card editor" id="editor">
+      <div class="head"><h2 id="formTitle">Tambah tombol</h2></div>
+      <div class="editing-note" id="editNote">Sedang mengedit tombol. Klik Batal untuk kembali menambah tombol baru.</div>
+      <div style="height:14px"></div>
+      <div class="field"><label for="title">Nama tombol</label><input id="title" placeholder="Contoh: WD LAMA" maxlength="60"></div>
+      <div class="field"><label for="category">Kategori</label><input id="category" value="WD" placeholder="WD / Deposit / Bonus" list="catlist" maxlength="30"><datalist id="catlist"></datalist></div>
+      <div class="field"><label for="message">Isi kalimat</label><textarea id="message" placeholder="Kalimat yang akan di-copy..."></textarea><div class="hint"><span>Teks ini yang tersalin saat tombol diklik.</span><span id="charCount">0 karakter</span></div></div>
+      <div class="actions"><button class="primary" onclick="saveButton()" id="saveBtn">Simpan tombol</button><button onclick="resetForm()" id="cancelBtn">Bersihkan</button></div>
+    </section>
+
+    <section class="card listbox">
+      <div class="head" style="margin-bottom:0"><h2>Daftar tombol</h2><span class="count" id="count"></span></div>
+      <div class="tools"><input id="search" type="search" placeholder="Cari nama atau isi kalimat..."></div>
+      <div class="chips" id="chips"></div>
+      <div id="list"><div class="empty">Memuat...</div></div>
+    </section>
+  </div>
+</div>
+<div id="toast" role="status"></div>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script>
-const SUPABASE_URL='https://kucvfhdnzaogwdmqdqge.supabase.co';const SUPABASE_KEY='sb_publishable_xYwB-L15uxO_b75fTNyJNw_VO17PoRs';const db=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);let editingId=null;
-async function login(){const email=document.getElementById('email').value.trim(),password=document.getElementById('password').value;const {error}=await db.auth.signInWithPassword({email,password});document.getElementById('loginMsg').innerHTML=error?`<div class="error">${esc(error.message)}</div>`:'';if(!error)check()}
-async function check(){const {data:{session}}=await db.auth.getSession();if(!session){document.getElementById('login').classList.remove('hidden');document.getElementById('app').classList.add('hidden');return}const {data,error}=await db.from('admin_users').select('user_id').eq('user_id',session.user.id).maybeSingle();if(error||!data){await db.auth.signOut();document.getElementById('loginMsg').innerHTML='<div class="error">Akun belum terdaftar sebagai admin.</div>';return}document.getElementById('login').classList.add('hidden');document.getElementById('app').classList.remove('hidden');loadList()}
+const SUPABASE_URL='https://kucvfhdnzaogwdmqdqge.supabase.co';const SUPABASE_KEY='sb_publishable_xYwB-L15uxO_b75fTNyJNw_VO17PoRs';
+const db=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+let editingId=null,all=[],filterCat='Semua';
+const $=id=>document.getElementById(id);
+function esc(s){return String(s??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
+function hue(s){let h=0;for(const ch of String(s||'Umum'))h=(h*31+ch.charCodeAt(0))%360;return `hsl(${h} 70% 62%)`}
+let tt;function toast(t,type='ok'){const e=$('toast');e.textContent=t;e.className='show '+type;clearTimeout(tt);tt=setTimeout(()=>e.className='',2400)}
+
+async function login(){
+  const btn=$('loginBtn');btn.disabled=true;btn.textContent='Masuk...';
+  const {error}=await db.auth.signInWithPassword({email:$('email').value.trim(),password:$('password').value});
+  btn.disabled=false;btn.textContent='Login';
+  $('loginMsg').innerHTML=error?`<div class="msg-err">${esc(error.message)}</div>`:'';
+  if(!error)check();
+}
+async function check(){
+  const {data:{session}}=await db.auth.getSession();
+  if(!session){$('login').classList.remove('hidden');$('app').classList.add('hidden');return}
+  const {data,error}=await db.from('admin_users').select('user_id').eq('user_id',session.user.id).maybeSingle();
+  if(error||!data){await db.auth.signOut();$('loginMsg').innerHTML='<div class="msg-err">Akun ini belum terdaftar sebagai admin.</div>';return}
+  $('login').classList.add('hidden');$('app').classList.remove('hidden');loadList();
+}
 async function logout(){await db.auth.signOut();location.reload()}
-async function loadList(){const {data,error}=await db.from('buttons').select('*').order('sort_order').order('title');document.getElementById('list').innerHTML=error?`<div class="error">${esc(error.message)}</div>`:(data||[]).map(b=>`<div class="item"><div><div class="title">${esc(b.title)} <span class="pill">${esc(b.category||'Umum')}</span></div><div class="message">${esc(b.message)}</div></div><div class="actions"><button class="secondary" onclick='editButton(${JSON.stringify(b)})'>Edit</button><button class="danger" onclick="deleteButton(${b.id})">Hapus</button></div></div>`).join('')||'<div class="muted">Belum ada tombol.</div>'}
-function editButton(b){editingId=b.id;title.value=b.title;category.value=b.category||'Umum';message.value=b.message;formTitle.textContent='Edit Tombol';saveBtn.textContent='Simpan Perubahan';scrollTo({top:0,behavior:'smooth'})}
-function resetForm(){editingId=null;title.value='';category.value='WD';message.value='';formTitle.textContent='Tambah Tombol';saveBtn.textContent='+ Simpan Tombol';formMsg.innerHTML=''}
-async function saveButton(){const t=title.value.trim(),m=message.value.trim(),c=category.value.trim()||'Umum';if(!t||!m){formMsg.innerHTML='<div class="error">Nama dan kalimat wajib diisi.</div>';return}let result;if(editingId)result=await db.from('buttons').update({title:t,message:m,category:c,updated_at:new Date().toISOString()}).eq('id',editingId);else{const {data:last}=await db.from('buttons').select('sort_order').order('sort_order',{ascending:false}).limit(1);const next=(last?.[0]?.sort_order||0)+1;result=await db.from('buttons').insert({title:t,message:m,category:c,sort_order:next})}if(result.error){formMsg.innerHTML=`<div class="error">${esc(result.error.message)}</div>`;return}formMsg.innerHTML='<div class="ok">✓ Tersimpan ke database online.</div>';resetForm();loadList()}
-async function deleteButton(id){if(!confirm('Hapus tombol ini?'))return;const {error}=await db.from('buttons').delete().eq('id',id);if(error)alert(error.message);else loadList()}
-function esc(s){return String(s).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
+
+async function loadList(){
+  const {data,error}=await db.from('buttons').select('*').order('sort_order').order('title');
+  if(error){$('list').innerHTML=`<div class="msg-err">${esc(error.message)}</div>`;return}
+  all=data||[];render();
+}
+function render(){
+  const cats=[...new Set(all.map(b=>b.category||'Umum'))];
+  if(filterCat!=='Semua'&&!cats.includes(filterCat))filterCat='Semua';
+  $('catlist').innerHTML=cats.map(c=>`<option value="${esc(c)}">`).join('');
+  $('chips').innerHTML=['Semua',...cats].map(c=>`<button class="chip ${c===filterCat?'on':''}" data-cat="${esc(c)}">${esc(c)}</button>`).join('');
+  const q=$('search').value.trim().toLowerCase();
+  const rows=all.filter(b=>(filterCat==='Semua'||(b.category||'Umum')===filterCat)&&(!q||(b.title+' '+b.message).toLowerCase().includes(q)));
+  $('count').textContent=rows.length===all.length?`${all.length} tombol`:`${rows.length} dari ${all.length} tombol`;
+  $('list').innerHTML=rows.length?rows.map(b=>`<div class="item ${b.id===editingId?'now':''}" style="--c:${hue(b.category)}"><div><div class="itop"><span class="title">${esc(b.title)}</span><span class="pill">${esc(b.category||'Umum')}</span></div><div class="message">${esc(b.message)}</div></div><div class="acts"><button class="small" data-act="edit" data-id="${b.id}">Edit</button><button class="small danger" data-act="del" data-id="${b.id}">Hapus</button></div></div>`).join(''):`<div class="empty">${all.length?'Tidak ada tombol yang cocok dengan pencarian.':'Belum ada tombol. Tambahkan lewat form di samping.'}</div>`;
+}
+$('chips').addEventListener('click',e=>{const c=e.target.closest('[data-cat]');if(c){filterCat=c.dataset.cat;render()}});
+$('search').addEventListener('input',render);
+$('list').addEventListener('click',e=>{const b=e.target.closest('[data-act]');if(!b)return;const id=Number(b.dataset.id);b.dataset.act==='edit'?editButton(id):deleteButton(id)});
+$('message').addEventListener('input',()=>$('charCount').textContent=$('message').value.length+' karakter');
+$('password').addEventListener('keydown',e=>{if(e.key==='Enter')login()});
+$('email').addEventListener('keydown',e=>{if(e.key==='Enter')login()});
+
+function editButton(id){
+  const b=all.find(x=>x.id===id);if(!b)return;
+  editingId=id;$('title').value=b.title;$('category').value=b.category||'Umum';$('message').value=b.message;
+  $('charCount').textContent=b.message.length+' karakter';
+  $('formTitle').textContent='Edit tombol';$('saveBtn').textContent='Simpan perubahan';$('cancelBtn').textContent='Batal';
+  $('editor').classList.add('editing');render();
+  if(innerWidth<=900)$('editor').scrollIntoView({behavior:'smooth',block:'start'});
+  $('title').focus({preventScroll:true});
+}
+function resetForm(){
+  editingId=null;$('title').value='';$('category').value='WD';$('message').value='';$('charCount').textContent='0 karakter';
+  $('formTitle').textContent='Tambah tombol';$('saveBtn').textContent='Simpan tombol';$('cancelBtn').textContent='Bersihkan';
+  $('editor').classList.remove('editing');render();
+}
+async function saveButton(){
+  const t=$('title').value.trim(),m=$('message').value.trim(),c=$('category').value.trim()||'Umum';
+  if(!t||!m){toast('Nama dan kalimat wajib diisi','err');return}
+  const btn=$('saveBtn');btn.disabled=true;
+  let result;
+  if(editingId)result=await db.from('buttons').update({title:t,message:m,category:c,updated_at:new Date().toISOString()}).eq('id',editingId);
+  else{const {data:last}=await db.from('buttons').select('sort_order').order('sort_order',{ascending:false}).limit(1);const next=(last?.[0]?.sort_order||0)+1;result=await db.from('buttons').insert({title:t,message:m,category:c,sort_order:next})}
+  btn.disabled=false;
+  if(result.error){toast(result.error.message,'err');return}
+  toast(editingId?'Perubahan disimpan':'Tombol ditambahkan');resetForm();loadList();
+}
+async function deleteButton(id){
+  const b=all.find(x=>x.id===id);
+  if(!confirm(`Hapus tombol "${b?b.title:''}"?`))return;
+  const {error}=await db.from('buttons').delete().eq('id',id);
+  if(error)toast(error.message,'err');else{if(editingId===id)resetForm();toast('Tombol dihapus');loadList()}
+}
 check();
 </script></body></html>
