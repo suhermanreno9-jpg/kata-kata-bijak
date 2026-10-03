@@ -110,14 +110,16 @@ async function copyText(card){
   const t=$('toast');t.textContent='Tersalin: '+b.title;t.classList.add('show');
   clearTimeout(tm);tm=setTimeout(()=>{t.classList.remove('show');card.classList.remove('copied');card.querySelector('.hint').textContent='Klik untuk salin'},1400);
 }
-/* Pop up saat halaman dibuka. Isi POPUP_MEDIA dengan file di repo (popup.mp4, popup.gif) atau link. Kosongkan '' untuk menonaktifkan. */
+/* Pop up muncul sekali per kunjungan (tidak muncul lagi saat kembali dari halaman admin). Isi POPUP_MEDIA dengan file di repo (popup.mp4, popup.gif) atau link. Kosongkan '' untuk menonaktifkan. */
 const POPUP_MEDIA='popup.mp4';
 (function(){
   if(!POPUP_MEDIA)return;
+  const KEY='popupSeen';
+  try{if(sessionStorage.getItem(KEY))return}catch(e){}
   const pop=$('pop');
   const isVideo=/\.(mp4|webm)(\?.*)?$/i.test(POPUP_MEDIA);
   function close(){pop.classList.remove('show');document.body.style.overflow='';const v=pop.querySelector('video');if(v)v.pause()}
-  function open(el){$('popMedia').replaceWith(el);pop.classList.add('show');document.body.style.overflow='hidden';$('popX').focus()}
+  function open(el){try{sessionStorage.setItem(KEY,'1')}catch(e){}$('popMedia').replaceWith(el);pop.classList.add('show');document.body.style.overflow='hidden';$('popX').focus()}
   if(isVideo){
     const v=document.createElement('video');
     v.muted=true;v.loop=true;v.autoplay=true;v.playsInline=true;v.setAttribute('playsinline','');v.setAttribute('aria-hidden','true');
