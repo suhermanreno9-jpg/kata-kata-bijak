@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>WANTO TEXT TEMPLATE</title>
+<html lang="id"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Kata Kata Bijak</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -21,6 +21,7 @@ h1{margin:0;font-size:clamp(28px,5vw,42px);line-height:1.05;font-weight:800;lett
 @keyframes pulse{70%{box-shadow:0 0 0 7px #4ade8000}100%{box-shadow:0 0 0 0 #4ade8000}}
 .sticky{position:sticky;top:0;z-index:5;margin:14px -20px 0;padding:12px 20px;background:linear-gradient(var(--bg) 70%,#0b111b00)}
 .search{width:100%;background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:12px;padding:12px 14px;font-size:15px}
+.tools{display:flex;gap:10px;flex-wrap:wrap}.tools .search{flex:1;min-width:200px}#uname{border-color:#2f5fb3;background:#101c31;font-weight:600}#uname:focus{border-color:var(--accent)}#uname.shake{animation:shake .35s}@keyframes shake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
 .search::placeholder{color:#5d6b82}
 .filters{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}
 .filter{border:1px solid var(--line);background:transparent;color:var(--mute);border-radius:999px;padding:6px 14px;font-weight:600;font-size:13px;cursor:pointer;transition:.15s}
@@ -35,13 +36,13 @@ h1{margin:0;font-size:clamp(28px,5vw,42px);line-height:1.05;font-weight:800;lett
 .hint{font-size:12px;font-weight:600;color:var(--mute);transition:color .15s}
 .card:hover .hint{color:var(--text)}
 .name{font-size:17px;font-weight:800;overflow-wrap:anywhere}
-.preview{color:var(--mute);font-size:13px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere}
+.preview{white-space:pre-line;color:var(--mute);font-size:13px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere}
 .card.copied{background:#10301f;border-color:#1f7a45;border-top-color:var(--ok);animation:pop .3s}
 .card.copied .hint{color:var(--ok)}
 @keyframes pop{40%{transform:scale(1.02)}}
 .empty{grid-column:1/-1;text-align:center;color:var(--mute);padding:50px 20px;border:1px dashed var(--line);border-radius:14px}
 .toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translate(-50%,18px);background:#0b1019;border:1px solid #1f7a45;color:var(--ok);padding:11px 20px;border-radius:999px;font-weight:700;opacity:0;pointer-events:none;transition:.2s;z-index:20;max-width:90vw;white-space:nowrap}
-.toast.show{opacity:1;transform:translate(-50%,0)}
+.toast.show{opacity:1;transform:translate(-50%,0)}.toast.err{border-color:#7a2b31;color:var(--err)}
 
 .pop{position:fixed;inset:0;z-index:100;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(5,9,16,.78);backdrop-filter:blur(4px)}
 .pop.show{display:flex;animation:fade .25s}
@@ -57,12 +58,12 @@ h1{margin:0;font-size:clamp(28px,5vw,42px);line-height:1.05;font-weight:800;lett
 <body>
 <div class="wrap">
   <header>
-    <div><h1>WANCO TEXT TEMPLATE</h1><p class="sub">Klik kartu untuk langsung menyalin kalimatnya.</p></div>
+    <div><h1>Kata Kata Bijak</h1><p class="sub">Klik kartu untuk langsung menyalin kalimatnya.</p></div>
     <a class="admin" href="admin.html">Kelola tombol</a>
   </header>
   <div class="status" id="status"><span class="dot"></span><span id="statusText">Menghubungkan database...</span></div>
   <div class="sticky">
-    <input class="search" id="search" type="search" placeholder="Cari template..." autocomplete="off">
+    <div class="tools"><input class="search" id="uname" placeholder="Masukkan ID / Username" autocomplete="off" autocapitalize="off" spellcheck="false"><input class="search" id="search" type="search" placeholder="Cari template..." autocomplete="off"></div>
     <div class="filters" id="filters"></div>
   </div>
   <div class="grid" id="buttons"></div>
@@ -81,6 +82,7 @@ const $=id=>document.getElementById(id);
 let allButtons=[],activeCategory='Semua',subscribed=false;
 function esc(s){return String(s??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
 function hue(s){let h=0;for(const ch of String(s||'Umum'))h=(h*31+ch.charCodeAt(0))%360;return `hsl(${h} 70% 62%)`}
+function fill(b){const u=$('uname').value.trim();return String(b.message??'').replace(/\{username\}/gi,u||'{username}').replace(/\{password\}/gi,b.password||'')}
 function setStatus(t,cls){$('status').className='status '+(cls||'');$('statusText').textContent=t}
 
 async function load(){
@@ -95,19 +97,26 @@ function render(){
   $('filters').innerHTML=cats.map(c=>`<button class="filter ${c===activeCategory?'active':''}" data-cat="${esc(c)}">${esc(c)}</button>`).join('');
   const q=$('search').value.trim().toLowerCase();
   const list=allButtons.filter(b=>(activeCategory==='Semua'||(b.category||'Umum')===activeCategory)&&(!q||(b.title+' '+b.message).toLowerCase().includes(q)));
-  $('buttons').innerHTML=list.length?list.map(b=>`<button class="card" style="--c:${hue(b.category)}" data-id="${b.id}"><div class="row"><span class="cat">${esc(b.category||'Umum')}</span><span class="hint">Klik untuk salin</span></div><span class="name">${esc(b.title)}</span><span class="preview">${esc(b.message)}</span></button>`).join(''):`<div class="empty">${allButtons.length?'Tidak ada template yang cocok.':'Belum ada tombol. Tambahkan lewat halaman Kelola tombol.'}</div>`;
+  $('buttons').innerHTML=list.length?list.map(b=>`<button class="card" style="--c:${hue(b.category)}" data-id="${b.id}"><div class="row"><span class="cat">${esc(b.category||'Umum')}</span><span class="hint">Klik untuk salin</span></div><span class="name">${esc(b.title)}</span><span class="preview">${esc(fill(b))}</span></button>`).join(''):`<div class="empty">${allButtons.length?'Tidak ada template yang cocok.':'Belum ada tombol. Tambahkan lewat halaman Kelola tombol.'}</div>`;
 }
 $('filters').addEventListener('click',e=>{const f=e.target.closest('[data-cat]');if(f){activeCategory=f.dataset.cat;render()}});
 $('search').addEventListener('input',render);
+$('uname').addEventListener('input',render);
 $('buttons').addEventListener('click',e=>{const c=e.target.closest('.card');if(c)copyText(c)});
 
 let tm;
 async function copyText(card){
   const b=allButtons.find(x=>String(x.id)===card.dataset.id);if(!b)return;
-  try{await navigator.clipboard.writeText(b.message)}catch(e){const a=document.createElement('textarea');a.value=b.message;document.body.appendChild(a);a.select();document.execCommand('copy');a.remove()}
+  const t=$('toast');
+  if(/\{username\}/i.test(b.message||'')&&!$('uname').value.trim()){
+    t.classList.add('err');t.textContent='Isi ID / Username dulu';t.classList.add('show');
+    const u=$('uname');u.classList.remove('shake');void u.offsetWidth;u.classList.add('shake');u.focus();
+    clearTimeout(tm);tm=setTimeout(()=>t.classList.remove('show'),1600);return}
+  const txt=fill(b);
+  try{await navigator.clipboard.writeText(txt)}catch(e){const a=document.createElement('textarea');a.value=txt;document.body.appendChild(a);a.select();document.execCommand('copy');a.remove()}
   document.querySelectorAll('.card.copied').forEach(x=>{x.classList.remove('copied');x.querySelector('.hint').textContent='Klik untuk salin'});
   card.classList.add('copied');card.querySelector('.hint').textContent='Tersalin';
-  const t=$('toast');t.textContent='Tersalin: '+b.title;t.classList.add('show');
+  t.classList.remove('err');t.textContent='Tersalin: '+b.title;t.classList.add('show');
   clearTimeout(tm);tm=setTimeout(()=>{t.classList.remove('show');card.classList.remove('copied');card.querySelector('.hint').textContent='Klik untuk salin'},1400);
 }
 /* Pop up muncul sekali per kunjungan (tidak muncul lagi saat kembali dari halaman admin). Isi POPUP_MEDIA dengan file di repo (popup.mp4, popup.gif) atau link. Kosongkan '' untuk menonaktifkan. */
