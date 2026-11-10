@@ -40,6 +40,15 @@ h1{margin:0;font-size:clamp(28px,5vw,42px);line-height:1.05;font-weight:800;lett
 .card.copied{background:#10301f;border-color:#1f7a45;border-top-color:var(--ok);animation:pop .3s}
 .card.copied .hint{color:var(--ok)}
 @keyframes pop{40%{transform:scale(1.02)}}
+[hidden]{display:none!important}
+.sec{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:22px 0 10px}
+.sec h2{margin:0;font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--mute)}
+.reset{background:none;border:0;color:var(--mute);font-size:12px;font-weight:600;cursor:pointer;padding:2px 4px;border-radius:6px}.reset:hover{color:var(--text)}
+.grid.mini{grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px;margin-top:0}
+.card.mini{min-height:0;flex-direction:row;align-items:center;justify-content:space-between;gap:10px;padding:12px 14px;border-radius:12px}
+.card.mini .name{font-size:14.5px}
+.card.mini .hint{font-variant-numeric:tabular-nums;color:var(--c)}
+.card.mini.copied .hint{color:var(--ok)}
 .empty{grid-column:1/-1;text-align:center;color:var(--mute);padding:50px 20px;border:1px dashed var(--line);border-radius:14px}
 .toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translate(-50%,18px);background:#0b1019;border:1px solid #1f7a45;color:var(--ok);padding:11px 20px;border-radius:999px;font-weight:700;opacity:0;pointer-events:none;transition:.2s;z-index:20;max-width:90vw;white-space:nowrap}
 .toast.show{opacity:1;transform:translate(-50%,0)}.toast.err{border-color:#7a2b31;color:var(--err)}
@@ -66,6 +75,8 @@ h1{margin:0;font-size:clamp(28px,5vw,42px);line-height:1.05;font-weight:800;lett
     <div class="tools"><input class="search" id="uname" placeholder="Masukkan ID / Username" autocomplete="off" autocapitalize="off" spellcheck="false"><input class="search" id="search" type="search" placeholder="Cari template..." autocomplete="off"></div>
     <div class="filters" id="filters"></div>
   </div>
+  <section id="topSec" hidden><div class="sec"><h2>Paling sering dipakai</h2><button class="reset" id="resetUse">Atur ulang</button></div><div class="grid mini" id="top"></div></section>
+  <div class="sec" id="allTitle" hidden><h2>Semua template</h2></div>
   <div class="grid" id="buttons"></div>
 </div>
 <div id="pop" class="pop" role="dialog" aria-modal="true" aria-label="Pengumuman">
@@ -83,6 +94,9 @@ let allButtons=[],activeCategory='Semua',subscribed=false;
 function esc(s){return String(s??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
 function hue(s){let h=0;for(const ch of String(s||'Umum'))h=(h*31+ch.charCodeAt(0))%360;return `hsl(${h} 70% 62%)`}
 function fill(b){const u=$('uname').value.trim();return String(b.message??'').replace(/\{username\}/gi,u||'{username}').replace(/\{password\}/gi,b.password||'')}
+function getUse(){try{return JSON.parse(localStorage.getItem('wdUsage'))||{}}catch(e){return{}}}
+function addUse(id){try{const u=getUse();u[id]=(u[id]||0)+1;localStorage.setItem('wdUsage',JSON.stringify(u))}catch(e){}}
+function unmark(x){x.classList.remove('copied');const h=x.querySelector('.hint');if(h&&x.dataset.h!==undefined)h.textContent=x.dataset.h}
 function setStatus(t,cls){$('status').className='status '+(cls||'');$('statusText').textContent=t}
 
 async function load(){
@@ -97,12 +111,18 @@ function render(){
   $('filters').innerHTML=cats.map(c=>`<button class="filter ${c===activeCategory?'active':''}" data-cat="${esc(c)}">${esc(c)}</button>`).join('');
   const q=$('search').value.trim().toLowerCase();
   const list=allButtons.filter(b=>(activeCategory==='Semua'||(b.category||'Umum')===activeCategory)&&(!q||(b.title+' '+b.message).toLowerCase().includes(q)));
+  const showTop=!q&&activeCategory==='Semua',use=getUse();
+  const top=showTop?allButtons.filter(b=>use[b.id]>0).sort((a,b)=>use[b.id]-use[a.id]||String(a.title).localeCompare(String(b.title))).slice(0,4):[];
+  $('topSec').hidden=!top.length;$('allTitle').hidden=!top.length;
+  $('top').innerHTML=top.map(b=>`<button class="card mini" style="--c:${hue(b.category)}" data-id="${b.id}"><span class="name">${esc(b.title)}</span><span class="hint">${use[b.id]}x</span></button>`).join('');
   $('buttons').innerHTML=list.length?list.map(b=>`<button class="card" style="--c:${hue(b.category)}" data-id="${b.id}"><div class="row"><span class="cat">${esc(b.category||'Umum')}</span><span class="hint">Klik untuk salin</span></div><span class="name">${esc(b.title)}</span><span class="preview">${esc(fill(b))}</span></button>`).join(''):`<div class="empty">${allButtons.length?'Tidak ada template yang cocok.':'Belum ada tombol. Tambahkan lewat halaman Kelola tombol.'}</div>`;
 }
 $('filters').addEventListener('click',e=>{const f=e.target.closest('[data-cat]');if(f){activeCategory=f.dataset.cat;render()}});
 $('search').addEventListener('input',render);
 $('uname').addEventListener('input',render);
 $('buttons').addEventListener('click',e=>{const c=e.target.closest('.card');if(c)copyText(c)});
+$('top').addEventListener('click',e=>{const c=e.target.closest('.card');if(c)copyText(c)});
+$('resetUse').addEventListener('click',()=>{if(confirm('Atur ulang hitungan paling sering dipakai?')){try{localStorage.removeItem('wdUsage')}catch(e){}render()}});
 
 let tm;
 async function copyText(card){
@@ -114,10 +134,10 @@ async function copyText(card){
     clearTimeout(tm);tm=setTimeout(()=>t.classList.remove('show'),1600);return}
   const txt=fill(b);
   try{await navigator.clipboard.writeText(txt)}catch(e){const a=document.createElement('textarea');a.value=txt;document.body.appendChild(a);a.select();document.execCommand('copy');a.remove()}
-  document.querySelectorAll('.card.copied').forEach(x=>{x.classList.remove('copied');x.querySelector('.hint').textContent='Klik untuk salin'});
-  card.classList.add('copied');card.querySelector('.hint').textContent='Tersalin';
+  addUse(b.id);document.querySelectorAll('.card.copied').forEach(unmark);
+  const hint=card.querySelector('.hint');card.dataset.h=hint.textContent;card.classList.add('copied');hint.textContent='Tersalin';
   t.classList.remove('err');t.textContent='Tersalin: '+b.title;t.classList.add('show');
-  clearTimeout(tm);tm=setTimeout(()=>{t.classList.remove('show');card.classList.remove('copied');card.querySelector('.hint').textContent='Klik untuk salin'},1400);
+  clearTimeout(tm);tm=setTimeout(()=>{t.classList.remove('show');render()},1400);
 }
 /* Pop up muncul sekali per kunjungan (tidak muncul lagi saat kembali dari halaman admin). Isi POPUP_MEDIA dengan file di repo (popup.mp4, popup.gif) atau link. Kosongkan '' untuk menonaktifkan. */
 const POPUP_MEDIA='popup.mp4';
